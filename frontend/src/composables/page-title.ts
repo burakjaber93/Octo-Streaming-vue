@@ -6,14 +6,14 @@ import { isNil } from '@jellyfin-vue/shared/validation';
 /**
  * This composable handles the page title of the application.
  */
-const DEFAULT_PAGE_TITLE = 'Jellyfin Vue';
+const DEFAULT_PAGE_TITLE = 'Octo-Streaming';
 const _title = shallowRef<string>();
 const _fullTitle = computed(() => _title.value ? `${_title.value.trim()} | ${DEFAULT_PAGE_TITLE}` : DEFAULT_PAGE_TITLE);
 
 _useTitle(_fullTitle);
 
 /**
- * Reactively sets the page title with the following template: **`title` | Jellyfin Vue**. Can be used in 2 ways:
+ * Reactively sets the page title with the following template: **`title` | Octo-Streaming**. Can be used in 2 ways:
  *
  * 1. Providing raw/reactive/ref/getter argument that will be tracked for changes by the composable. Raw values
  * can't be tracked directly, so they need to be wrapped in a ref or getter.
