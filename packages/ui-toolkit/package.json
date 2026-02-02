@@ -1,0 +1,43 @@
+{
+  "name": "@jellyfin-vue/ui-toolkit",
+  "type": "module",
+  "description": "Base components and UI toolkit for Jellyfin Vue",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "exports": {
+    "./composables/*.ts": "./src/composables/*.ts",
+    "./components": "./src/components/index.ts",
+    "./store": "./src/store.ts",
+    "./resolver": "./src/resolver.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:inspect": "eslint-config-inspector",
+    "check:types": "vue-tsc",
+    "storybook": "storybook dev -p 6006 --config-dir storybook --no-open"
+  },
+  "dependencies": {
+    "@jellyfin-vue/shared": "*",
+    "@skirtle/vue-vnode-utils": "0.2.0",
+    "color": "5.0.3"
+  },
+  "devDependencies": {
+    "@jellyfin-vue/configs": "*"
+  },
+  "peerDependencies": {
+    "@jellyfin-vue/i18n": "*",
+    "@vueuse/core": "*",
+    "comlink": "*",
+    "i18next-vue": "*",
+    "unplugin-vue-components": "*",
+    "vue": "*",
+    "vuetify": "*"
+  },
+  "peerDependenciesMeta": {
+    "unplugin-vue-components": {
+      "optional": true
+    }
+  }
+}

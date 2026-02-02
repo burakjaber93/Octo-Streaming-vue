@@ -1,0 +1,55 @@
+{
+  "editor.formatOnSave": true, 
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "never"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "i18n-ally.keystyle": "flat",
+  "i18n-ally.sortKeys": true,
+  "i18n-ally.sourceLanguage": "en",
+  "i18n-ally.includeSubfolders": false,
+  "i18n-ally.fullReloadOnChanged": true,
+  "i18n-ally.extract.autoDetect": true,
+  "i18n-ally.annotations": false,
+  "i18n-ally.localesPaths": [
+    "packages/i18n/strings"
+  ],
+  "i18n-ally.enabledFrameworks": [
+    "i18next",
+    "vue-sfc"
+  ],
+  "eslint.validate": [
+    "vue",
+    "javascript",
+    "typescript"
+  ],
+  "eslint.format.enable": true,
+  "eslint.useFlatConfig": true,
+  "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ],
+  "vue.server.hybridMode": true,
+  "vue.autoInsert.dotValue": true,
+  "vue.inlayHints.missingProps": true,
+  "vue.complete.casing.props": "kebab",
+  "vue.complete.casing.tags": "pascal",
+  "vue.format.script.initialIndent": true,
+  "vue.format.style.initialIndent": true,
+  "vue.inlayHints.inlineHandlerLeading": true,
+  "vue.inlayHints.vBindShorthand": true,
+  "vue.inlayHints.optionsWrapper": true,
+  "vue.inlayHints.destructuredProps": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false
+}

@@ -1,0 +1,33 @@
+{
+  "name": "jellyfin-vue Codespace (with support for Tauri and Docker development)",
+  "build": { 
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "root",
+  "features": {
+    "ghcr.io/devcontainers/features/rust:1": {
+      "profile": "default"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "installDockerComposeSwitch": false,
+      "moby": false
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Vite server",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": {
+    "tauri-deps": "install_packages $(cat packaging/tauri/apt_packages)",
+    "npm": "npm ci --no-audit",
+    "unshallow": "git fetch --unshallow || true"
+  },
+  "postAttachCommand": {
+    "install-extensions": "cat .vscode/extensions.json | jq -r .recommendations[] | xargs -n 1 code --install-extension"
+  },
+  "hostRequirements": { "cpus": 4, "memory": "8gb" }
+}
