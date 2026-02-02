@@ -87,9 +87,6 @@ const route = useRoute('/library/[itemId]');
 const lazyLoadLimit = 50;
 const initialId = route.params.itemId;
 
-/**
- * Updated to include livetv mapping
- */
 const COLLECTION_TYPES_MAPPINGS: Record<string, BaseItemKind> = {
   tvshows: BaseItemKind.Series,
   movies: BaseItemKind.Movie,
@@ -143,84 +140,46 @@ const hasFilters = computed(() =>
   Object.values(filters.value).some(({ length }) => length > 0)
 );
 
-/**
- * Updated to allow livetv view types
- */
 const hasViewTypes = computed(
   () =>
-    library.value.CollectionType === 'movies'
-    || library.value.CollectionType === 'music'
-    || library.value.CollectionType === 'tvshows'
-    || library.value.CollectionType === 'livetv'
+    ['movies', 'music', 'tvshows', 'livetv'].includes(library.value.CollectionType ?? '')
 );
 
 const isSortable = computed(
   () =>
-    viewType.value
-    && ![
-      'MusicArtist',
-      'Person',
-      'Genre',
-      'MusicGenre',
-      'Studio'
-    ].includes(viewType.value)
+    viewType.value && 
+    !['MusicArtist', 'Person', 'Genre', 'MusicGenre', 'Studio'].includes(viewType.value)
 );
 
 const recursive = computed(() =>
-  library.value.CollectionType === 'homevideos'
-  || library.value.CollectionType === 'livetv'
-  || library.value.Type === 'Folder'
-  || (library.value.Type === 'CollectionFolder'
-    && !('CollectionType' in library.value))
-    ? undefined
-    : true
+  // Force recursive for Live TV to find items inside folders created by Xtream
+  library.value.CollectionType === 'livetv' ? true :
+  (library.value.CollectionType === 'homevideos' || library.value.Type === 'Folder' ? undefined : true)
 );
 
 const parentId = computed(() => library.value.Id);
 const methods = computed(() => {
   switch (viewType.value) {
-    case 'MusicArtist': {
-      return [getArtistsApi, 'getArtists'] as const;
-    }
-    case 'Person': {
-      return [getPersonsApi, 'getPersons'] as const;
-    }
-    case 'Genre': {
-      return [getGenresApi, 'getGenres'] as const;
-    }
-    case 'MusicGenre': {
-      return [getMusicGenresApi, 'getMusicGenres'] as const;
-    }
-    case 'Studio': {
-      return [getStudiosApi, 'getStudios'] as const;
-    }
-    default: {
-      return [getItemsApi, 'getItems'] as const;
-    }
+    case 'MusicArtist': return [getArtistsApi, 'getArtists'] as const;
+    case 'Person': return [getPersonsApi, 'getPersons'] as const;
+    case 'Genre': return [getGenresApi, 'getGenres'] as const;
+    case 'MusicGenre': return [getMusicGenresApi, 'getMusicGenres'] as const;
+    case 'Studio': return [getStudiosApi, 'getStudios'] as const;
+    default: return [getItemsApi, 'getItems'] as const;
   }
 });
+
 const api = computed(() => methods.value[0]);
 const method = computed(() => methods.value[1]);
 
 const { loading, data: items } = await useBaseItem(api, method)(() => ({
   parentId: parentId.value,
   personTypes: viewType.value === 'Person' ? ['Actor'] : undefined,
-  includeItemTypes: viewType.value ? [viewType.value] : undefined,
+  // DANGER/FIX: If this is Live TV, do NOT filter by ItemType. Show everything.
+  includeItemTypes: library.value.CollectionType === 'livetv' ? undefined : (viewType.value ? [viewType.value] : undefined),
   sortOrder: [sortAscending.value ? SortOrder.Ascending : SortOrder.Descending],
   sortBy: [sortBy.value ?? 'SortName'],
   recursive: recursive.value,
-  filters: filters.value.status,
-  genres: filters.value.genres,
-  years: filters.value.years,
-  officialRatings: filters.value.ratings,
-  hasSubtitles: filters.value.features.includes('HasSubtitles') || undefined,
-  hasTrailer: filters.value.features.includes('HasTrailer') || undefined,
-  hasSpecialFeature: filters.value.features.includes('HasSpecialFeature') || undefined,
-  hasThemeSong: filters.value.features.includes('HasThemeSong') || undefined,
-  hasThemeVideo: filters.value.features.includes('HasThemeVideo') || undefined,
-  isHd: filters.value.types.includes('isHD') || undefined,
-  is4K: filters.value.types.includes('is4K') || undefined,
-  is3D: filters.value.types.includes('is3D') || undefined,
   limit: queryLimit.value
 }));
 
@@ -230,18 +189,3 @@ onBeforeMount(() => {
   queryLimit.value = undefined;
 });
 </script>
-
-<style scoped>
-.empty-card-container {
-  max-height: 90vh;
-  overflow: hidden;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
-}
-
-.empty-message {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-</style>
