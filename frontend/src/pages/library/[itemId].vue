@@ -21,7 +21,6 @@
         </template>
       </VChip>
       <VDivider
-
         vertical
         inset
         class="hidden-sm-and-down mx-2" />
@@ -55,7 +54,7 @@
       <ItemGrid
         :items="items">
         <h1
-          v-if="!hasFilters"
+          v-if="!loading && items.length === 0"
           class="text-h5">
           {{ hasFilters ? t('libraryEmptyFilters') : t('libraryEmpty') }}
         </h1>
@@ -87,12 +86,17 @@ const route = useRoute('/library/[itemId]');
 
 const lazyLoadLimit = 50;
 const initialId = route.params.itemId;
+
+/**
+ * Updated to include livetv mapping
+ */
 const COLLECTION_TYPES_MAPPINGS: Record<string, BaseItemKind> = {
   tvshows: BaseItemKind.Series,
   movies: BaseItemKind.Movie,
   books: BaseItemKind.Book,
   music: BaseItemKind.MusicAlbum,
-  boxsets: BaseItemKind.BoxSet
+  boxsets: BaseItemKind.BoxSet,
+  livetv: BaseItemKind.LiveTvChannel
 };
 
 const innerItemKind = shallowRef<BaseItemKind>();
@@ -108,17 +112,11 @@ const filters = ref<Filters>({
   years: []
 });
 
-/**
- * Updates sort value when it is changed
- */
 function onChangeSort(sort: string, ascending: boolean): void {
   sortBy.value = sort;
   sortAscending.value = ascending;
 }
 
-/**
- * Updates filters when they are changed
- */
 function onChangeFilter(changedFilters: Filters): void {
   filters.value = changedFilters;
 }
@@ -127,6 +125,7 @@ const { data: libraryQuery } = await useBaseItem(getItemsApi, 'getItems')(() => 
   ids: [route.params.itemId]
 }));
 const library = computed(() => libraryQuery.value[0]!);
+
 const viewType = computed({
   get() {
     if (innerItemKind.value) {
@@ -143,19 +142,21 @@ const viewType = computed({
 const hasFilters = computed(() =>
   Object.values(filters.value).some(({ length }) => length > 0)
 );
+
+/**
+ * Updated to allow livetv view types
+ */
 const hasViewTypes = computed(
   () =>
     library.value.CollectionType === 'movies'
     || library.value.CollectionType === 'music'
     || library.value.CollectionType === 'tvshows'
+    || library.value.CollectionType === 'livetv'
 );
+
 const isSortable = computed(
   () =>
     viewType.value
-    /**
-     * Not everything is sortable, so depending on what we're showing, we need to hide the sort menu.
-     * Reusing this as "isFilterable" too, since these seem to go hand in hand for now.
-     */
     && ![
       'MusicArtist',
       'Person',
@@ -167,6 +168,7 @@ const isSortable = computed(
 
 const recursive = computed(() =>
   library.value.CollectionType === 'homevideos'
+  || library.value.CollectionType === 'livetv'
   || library.value.Type === 'Folder'
   || (library.value.Type === 'CollectionFolder'
     && !('CollectionType' in library.value))
@@ -200,9 +202,6 @@ const methods = computed(() => {
 const api = computed(() => methods.value[0]);
 const method = computed(() => methods.value[1]);
 
-/**
- * TODO: Improve the type situation of this statement
- */
 const { loading, data: items } = await useBaseItem(api, method)(() => ({
   parentId: parentId.value,
   personTypes: viewType.value === 'Person' ? ['Actor'] : undefined,
@@ -227,9 +226,6 @@ const { loading, data: items } = await useBaseItem(api, method)(() => ({
 
 useItemPageTitle(library);
 
-/**
- * We fetch the 1st 50 items and, after mount, we fetch the rest.
- */
 onBeforeMount(() => {
   queryLimit.value = undefined;
 });
