@@ -32,4 +32,6 @@ jobs:
           context: .
           file: ./packaging/docker/Dockerfile
           push: true
+          no-cache: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          pull: true
